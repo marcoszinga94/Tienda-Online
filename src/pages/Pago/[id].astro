@@ -25,8 +25,10 @@ const total = productosCarrito.reduce(
   <div class="p-8 md:py-32 text-[#D49F68]">
     <div class="flex flex-col md:flex-row gap-4 m-auto max-w-[800px]">
       <!-- CARRITO DE COMPRA CON PRODUCTOS -->
-      <div class="flex flex-col gap-4 m-auto w-96">
-        <div class="flex flex-col gap-3 m-auto border-4 rounded-lg">
+      <div class="flex flex-col gap-4 m-auto w-[400px]">
+        <div
+          class="flex flex-col gap-3 m-auto border-4 border-[#D49F68] rounded-lg"
+        >
           <h2 class="text-4xl font-bold flex justify-center p-4">Tu carrito</h2>
           <ul id="lista-productos-carrito"></ul>
           <p class="text-2xl font-bold m-auto">
@@ -37,12 +39,12 @@ const total = productosCarrito.reduce(
       </div>
 
       <!-- FORMULARIO PARA PAGO -->
-      <div class="flex flex-col gap-4 m-auto w-96">
+      <div class="flex flex-col gap-4 m-auto w-[400px]">
         <form
           id="pago-Form"
           action="/pago"
           method="POST"
-          class="flex flex-col gap-2 p-8 bg-blanco rounded-lg text-marron border-4 border-naranja"
+          class="flex flex-col gap-2 p-8 bg-white rounded-lg text-[#D49F68] border-4 border-[#D49F68]"
         >
           <h2 class="text-4xl font-bold flex justify-center p-4 text-center">
             Pago
@@ -57,7 +59,7 @@ const total = productosCarrito.reduce(
               "email",
             ].map((field) => (
               <input
-                class="border-2 border-marron text-marron placeholder:text-marron rounded-lg p-2"
+                class="border-2 border-[#D49F68] text-[#D49F68] placeholder:text-[#D49F68] rounded-lg p-2"
                 type={field === "email" ? "email" : "text"}
                 id={field}
                 name={field}
@@ -79,7 +81,7 @@ const total = productosCarrito.reduce(
 
           <button
             id="checkout-button"
-            class="border border-blanco text-blanco bg-verde text-xl font-bold py-2 px-4 rounded-md m-auto focus:bg-naranja"
+            class="border border-white text-white bg-[#D49F68] text-xl font-bold py-2 px-4 rounded-md m-auto"
             disabled
           >
             Pagar
@@ -98,7 +100,7 @@ const total = productosCarrito.reduce(
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border-left-color: #a6816e;
+    border-left-color: #d49f68;
     margin: 20px auto 0;
     animation: spin 1s ease infinite;
   }
@@ -225,7 +227,8 @@ const total = productosCarrito.reduce(
         listaProductosCarrito.innerHTML = "";
         productosCarrito.forEach((producto) => {
           const li = document.createElement("li");
-          li.className = "flex items-center p-4 border-b border-blanco m-auto";
+          li.className =
+            "flex items-center p-4 border-b border-[#D49F68] m-auto gap-2";
           li.innerHTML = `
             <img src="${producto.imagen}" alt="Producto" class="size-20" />
             <div class="flex flex-col">
