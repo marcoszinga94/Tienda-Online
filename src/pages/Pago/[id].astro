@@ -1,0 +1,266 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { cargarCarrito, carrito } from "../carritoTienda";
+
+export const prerender = false;
+
+let productosCarrito = [];
+
+function getProductosCarrito() {
+  if (typeof window !== "undefined") {
+    cargarCarrito();
+    return carrito;
+  }
+  return [];
+}
+
+productosCarrito = getProductosCarrito();
+const total = productosCarrito.reduce(
+  (acc, item) => acc + item.precio * item.cantidad,
+  0
+);
+---
+
+<Layout title="ZapatosYulii - Pasarela de pago">
+  <div class="p-8 md:py-32 text-[#D49F68]">
+    <div class="flex flex-col md:flex-row gap-4 m-auto max-w-[800px]">
+      <!-- CARRITO DE COMPRA CON PRODUCTOS -->
+      <div class="flex flex-col gap-4 m-auto w-96">
+        <div class="flex flex-col gap-3 m-auto border-4 rounded-lg">
+          <h2 class="text-4xl font-bold flex justify-center p-4">Tu carrito</h2>
+          <ul id="lista-productos-carrito"></ul>
+          <p class="text-2xl font-bold m-auto">
+            Total: <span id="total-carrito" class="text-2xl font-semibold"
+            ></span>
+          </p>
+        </div>
+      </div>
+
+      <!-- FORMULARIO PARA PAGO -->
+      <div class="flex flex-col gap-4 m-auto w-96">
+        <form
+          id="pago-Form"
+          action="/pago"
+          method="POST"
+          class="flex flex-col gap-2 p-8 bg-blanco rounded-lg text-marron border-4 border-naranja"
+        >
+          <h2 class="text-4xl font-bold flex justify-center p-4 text-center">
+            Pago
+          </h2>
+          {
+            [
+              "nombre",
+              "direccion",
+              "ciudad",
+              "codigo-postal",
+              "provincia",
+              "email",
+            ].map((field) => (
+              <input
+                class="border-2 border-marron text-marron placeholder:text-marron rounded-lg p-2"
+                type={field === "email" ? "email" : "text"}
+                id={field}
+                name={field}
+                placeholder={
+                  field.charAt(0).toUpperCase() +
+                  field.slice(1).replace("-", " ")
+                }
+                required
+              />
+            ))
+          }
+          <input
+            type="hidden"
+            id="carrito"
+            name="productos"
+            value={JSON.stringify(productosCarrito)}
+          />
+          <input type="hidden" id="total" name="total" value={total} />
+
+          <button
+            id="checkout-button"
+            class="border border-blanco text-blanco bg-verde text-xl font-bold py-2 px-4 rounded-md m-auto focus:bg-naranja"
+            disabled
+          >
+            Pagar
+          </button>
+          <div id="wallet_container"></div>
+          <div class="spinner hidden"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .spinner {
+    border: 5px solid rgba(0, 0, 0, 0.3);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #a6816e;
+    margin: 20px auto 0;
+    animation: spin 1s ease infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<script>
+  // Validar formulario para habilitar botón de pago
+  document.addEventListener("DOMContentLoaded", () => {
+    function checkFormCompletion() {
+      const requiredInputs = document.querySelectorAll("input[required]");
+      const allFilled = Array.from(requiredInputs).every(
+        (input) => (input as HTMLInputElement).value.trim() !== ""
+      );
+
+      const checkoutButton = document.getElementById("checkout-button");
+      if (checkoutButton) {
+        if (allFilled) {
+          checkoutButton.removeAttribute("disabled");
+        } else {
+          checkoutButton.setAttribute("disabled", "");
+        }
+      }
+    }
+
+    const requiredInputs = document.querySelectorAll("input[required]");
+    requiredInputs.forEach((input) => {
+      input.addEventListener("input", checkFormCompletion);
+    });
+
+    checkFormCompletion();
+  });
+
+  // Desaparecer botón de pago y aparecer spinner por 2 segundos
+  const button = document.getElementById("checkout-button");
+  const spinner = document.querySelector(".spinner");
+
+  button?.addEventListener("click", () => {
+    button.style.display = "none";
+    spinner?.classList.remove("hidden");
+
+    setTimeout(() => {
+      spinner?.classList.add("hidden");
+    }, 2000);
+  });
+
+  // Enviar mensaje a email con datos del comprador
+  document
+    .getElementById("pago-Form")
+    ?.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(event.target as HTMLFormElement);
+      const carrito = JSON.parse(formData.get("productos") as string);
+      const total = formData.get("total");
+
+      const data = {
+        name: formData.get("nombre"),
+        subject: "Nueva Venta - Datos del Formulario de Pago",
+        text: `
+      Nombre: ${formData.get("nombre")}
+      Dirección: ${formData.get("direccion")}
+      Ciudad: ${formData.get("ciudad")}
+      Código Postal: ${formData.get("codigo-postal")}
+      Provincia: ${formData.get("provincia")}
+      Email: ${formData.get("email")}
+      Productos Comprados:
+      ${carrito
+        .map(
+          (producto: any) =>
+            `- ${producto.titulo}: ${producto.cantidad} x ${producto.precio.toLocaleString("es-AR", { style: "currency", currency: "ARS" })}`
+        )
+        .join("\n      ")}
+      Total: ${Number(total).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
+    `,
+      };
+
+      try {
+        const response = await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          console.log("Correo enviado exitosamente.");
+        } else {
+          const errorData = await response.json();
+          console.log("Error al enviar el correo: " + errorData.error);
+        }
+      } catch (error) {
+        console.log("Error: " + (error as Error).message);
+      }
+    });
+</script>
+
+<!-- CARGAR CARRITO AL RENDERIZAR LA PAGINA -->
+<script>
+  import { cargarCarrito, carrito } from "../carritoTienda";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    function actualizarCarrito() {
+      cargarCarrito();
+      const productosCarrito = carrito;
+      const total = productosCarrito.reduce(
+        (acc, item) => acc + item.precio * item.cantidad,
+        0
+      );
+
+      const listaProductosCarrito = document.getElementById(
+        "lista-productos-carrito"
+      );
+      const totalCarrito = document.getElementById("total-carrito");
+
+      if (listaProductosCarrito) {
+        listaProductosCarrito.innerHTML = "";
+        productosCarrito.forEach((producto) => {
+          const li = document.createElement("li");
+          li.className = "flex items-center p-4 border-b border-blanco m-auto";
+          li.innerHTML = `
+            <img src="${producto.imagen}" alt="Producto" class="size-20" />
+            <div class="flex flex-col">
+              <h3 class="text-2xl font-bold">${producto.nombre}</h3>
+              <p class="text-xl">Cantidad: ${producto.cantidad}</p>
+              <p class="text-xl">${producto.precio.toLocaleString("es-AR", { style: "currency", currency: "ARS" })} x ${producto.cantidad}</p>
+            </div>
+          `;
+          listaProductosCarrito.appendChild(li);
+        });
+      }
+
+      if (totalCarrito) {
+        totalCarrito.textContent = total.toLocaleString("es-AR", {
+          style: "currency",
+          currency: "ARS",
+        });
+      }
+
+      const inputCarrito = document.getElementById(
+        "carrito"
+      ) as HTMLInputElement;
+      if (inputCarrito) {
+        inputCarrito.value = JSON.stringify(productosCarrito);
+      }
+
+      const inputTotal = document.getElementById("total") as HTMLInputElement;
+      if (inputTotal) {
+        inputTotal.value = total.toString();
+      }
+    }
+
+    actualizarCarrito();
+  });
+</script>
+
+<!-- MERCADO PAGO CHECKOUT -->
+<script src="../../index.js"></script>

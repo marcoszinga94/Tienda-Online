@@ -1,0 +1,42 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ClientRouter from "astro/components/ClientRouter.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="upgrade-insecure-requests"
+    />
+    <title>{title}</title>
+    <meta name="generator" content={Astro.generator} />
+    <script is:inline type="module" src="https://sdk.mercadopago.com/js/v2"
+    ></script>
+    <ClientRouter />
+  </head>
+
+  <body class="grid grid-rows-layout">
+    <Header />
+    <main class="w-[1140px] mx-auto min-h-screen">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
+</style>

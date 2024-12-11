@@ -1,0 +1,24 @@
+---
+import { Astronav, MenuItems, MenuIcon } from "astro-navbar";
+import Carrito from "./Carrito.astro";
+---
+
+<header class="w-screen flex flex-row justify-between bg-[#D49F68] z-20">
+  <a href="/" class="m-auto text-white text-3xl font-bold">ZAPATOS YULII</a>
+
+  <div class="m-auto">
+    <Astronav>
+      <div class="flex flex-row lg:hidden gap-4">
+        <MenuIcon class="size-8 text-white m-auto" />
+      </div>
+
+      <MenuItems class="hidden lg:flex flex-row gap-4 m-auto">
+        <ul
+          class="absolute top-24 right-0 lg:static flex flex-col lg:flex-row gap-4 m-auto rounded-lg p-6 bg-blanco lg:bg-transparent border-2 border-marron lg:border-0"
+        >
+          <Carrito />
+        </ul>
+      </MenuItems>
+    </Astronav>
+  </div>
+</header>

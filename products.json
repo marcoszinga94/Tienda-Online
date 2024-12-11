@@ -1,0 +1,42 @@
+[
+  {
+    "id": "01",
+    "marca": "ZapatosYulii",
+    "nombre": "Mirka Pelo",
+    "precio": 137500,
+    "imagen": "/Images/Productos/mirka-animal-print-pelo.webp",
+    "categoria": "Zapatillas",
+    "color": "Animal Print",
+    "talle": ["36", "37", "38"]
+  },
+  {
+    "id": "02",
+    "marca": "ZapatosYulii",
+    "nombre": "Belisaria",
+    "precio": 128900,
+    "imagen": "/Images/Productos/belisaria-negro.webp",
+    "categoria": "Sandalias",
+    "color": "Negro",
+    "talle": ["36", "37", "38", "39"]
+  },
+  {
+    "id": "03",
+    "marca": "ZapatosYulii",
+    "nombre": "Toribia",
+    "precio": 128900,
+    "imagen": "/Images/Productos/toribia-choco.webp",
+    "categoria": "Sandalias",
+    "color": "Choco",
+    "talle": ["36", "37", "38", "39"]
+  },
+  {
+    "id": "04",
+    "marca": "ZapatosYulii",
+    "nombre": "Litia",
+    "precio": 117480,
+    "imagen": "/Images/Productos/litia-beige.webp",
+    "categoria": "Sandalias",
+    "color": "Beige",
+    "talle": ["36", "37", "38", "39"]
+  }
+]

@@ -1,0 +1,107 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import productos from "../../../products.json";
+import { Image } from "astro:assets";
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return productos.map((producto) => ({
+    params: { id: producto.id },
+    props: { producto },
+  }));
+}
+
+const { producto } = Astro.props;
+
+const excludedProps = ["id", "imagen", "nombre", "descripcion", "precio"];
+const caracteristicas = Object.entries(producto).filter(
+  ([key]) => !excludedProps.includes(key)
+);
+
+if (!producto) {
+  return Astro.redirect("/404");
+}
+---
+
+<Layout title={`ZapatosYulii - ${producto.nombre}`}>
+  <div class="md:grid md:grid-cols-4 flex flex-col gap-4 px-4 py-12 m-auto">
+    <div class="col-span-2">
+      <Image
+        transition:name={producto.nombre}
+        src={producto.imagen}
+        alt={producto.nombre}
+        loading="lazy"
+        width={800}
+        height={600}
+        class="h-auto w-full rounded-xl"
+      />
+    </div>
+
+    <div class="col-span-2 flex flex-col gap-6 text-[#D49F68]">
+      <div class="flex flex-col gap-4">
+        <h1 id="nombre" class="text-4xl font-bold">{producto.nombre}</h1>
+        <p id="precio" class="text-4xl font-normal">
+          {
+            producto.precio.toLocaleString("es-AR", {
+              style: "currency",
+              currency: "ARS",
+              minimumFractionDigits: 0,
+            })
+          }
+        </p>
+      </div>
+
+      <div class="flex flex-col text-[#D49F68] gap-4 my-auto">
+        <button
+          class="text-white bg-[#D49F68] text-xl font-bold py-2 px-4 rounded-md text-center"
+          data-agregar-carrito
+          data-producto={JSON.stringify(producto)}
+        >
+          Agregar al carrito
+        </button>
+        <div class="flex flex-col gap-2">
+          <p class="text-center">Stock Disponible</p>
+          <p class="text-pretty text-center">
+            Comprá usando MercadoPago, con tus medios de pago favoritos.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-4 bg-blanco text-marron p-4 rounded-lg my-auto"
+      >
+        <h2 class="text-3xl font-bold flex justify-center">
+          Características del Producto
+        </h2>
+        <ol class="list-disc text-pretty px-4">
+          {
+            caracteristicas.map(([key, value]) => (
+              <li>
+                <strong>
+                  {key.charAt(0).toUpperCase() + key.slice(1).replace("_", " ")}
+                  :
+                </strong>{" "}
+                {value}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { agregarAlCarrito } from "../carritoTienda";
+
+  document
+    .getElementById("agregar-al-carrito")
+    ?.addEventListener("click", function () {
+      const productoJSON = this.getAttribute("data-producto");
+      if (productoJSON) {
+        const producto = JSON.parse(productoJSON);
+        agregarAlCarrito(producto);
+      }
+    });
+</script>

@@ -1,0 +1,41 @@
+---
+import Layout from "../layouts/Layout.astro";
+import productos from "../../products.json";
+import { Image } from "astro:assets";
+---
+
+<Layout title="ZapatosYulii">
+  <div class="m-auto py-8">
+    <h1 class="flex text-6xl font-bold justify-center m-auto py-8 text-[#D49F68]">Tienda</h1>
+
+    <div class="grid grid-cols-4 gap-8 px-4 md:px-16 text-[#D49F68]">
+        {
+            productos.map((producto) => (
+                <div class="flex flex-col justify-between gap-2 h-auto rounded-lg shadow-md bg-[#ffeedd]">
+                    <a href={`/Producto/${producto.id}`} title=`${producto.id}` >
+                        <Image transition:name={producto.nombre} src=`${producto.imagen}` alt="Producto" width={800} height={600} class="ratio-square rounded-xl m-auto p-2" loading="eager" />
+                    </a>
+
+                    <div class="flex flex-col justify-between gap-2 h-auto">
+                        <h2 class="text-2xl font-semibold text-center m-auto">{producto.nombre}</h2>
+                        <p class="text-2xl m-auto">{producto.precio.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 })}</p>
+                    </div>
+
+                    <div class="flex flex-col justify-between gap-2 h-auto p-2">
+                        <a
+                            href={`/Producto/${producto.id}`}
+                            title=`${producto.id}`
+                            class="bg-[#D49F68] text-white text-center font-medium py-2 px-4 rounded-lg hover:bg-verde hover:text-white transition-all duration-500"
+                        >Ver Producto</a>
+                        <button
+                            class="bg-[#D49F68] text-white text-center font-medium py-2 px-4 rounded-lg hover:bg-verde hover:text-white transition-all duration-500"
+                            data-agregar-carrito
+                            data-producto={JSON.stringify(producto)}
+                        >Agregar al carrito</button>
+                    </div>
+                </div>
+            ))
+        }
+    </div>
+</div>
+</Layout>

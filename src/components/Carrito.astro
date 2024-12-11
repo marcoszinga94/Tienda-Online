@@ -1,0 +1,105 @@
+---
+import { carrito } from "../pages/carritoTienda";
+
+carrito.push;
+---
+
+<div id="carrito-header" class="relative cursor-pointer">
+  <span id="carrito-icono" class="text-2xl">🛒</span>
+  <span
+    id="carrito-contador"
+    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs px-2 py-1"
+    >0</span
+  >
+</div>
+
+<div
+  id="carrito-modal"
+  class="hidden fixed right-0 top-20 z-50 items-center justify-center"
+>
+  <div class="bg-white p-4 rounded-lg w-96 max-w-full">
+    <div class="flex flex-row justify-between">
+      <h2 class="text-xl font-bold">Mi Carrito</h2>
+      <button id="cerrar-carrito" class="border bg-gray-400 rounded size-6"
+        >X</button
+      >
+    </div>
+
+    <ul id="carrito-items" class="max-h-48 overflow-y-auto"></ul>
+
+    <div class="flex flex-row justify-around">
+      <p class="flex mt-2 text-xl justify-center font-bold m-auto">
+        Total: $<span id="carrito-total">0</span>
+      </p>
+      <div id="boton-container"></div>
+    </div>
+    <div class="flex flex-col gap-2">
+      <a
+        href=`/Pago/[id]`
+        class="border border-blanco text-white bg-[#D49F68] text-xl font-bold py-4 px-6 rounded-md text-center"
+        >Comprar Carrito</a
+      >
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    agregarAlCarrito,
+    vaciarCarrito,
+    actualizarCarritoUI,
+    cargarCarrito,
+  } from "../pages/carritoTienda.ts";
+
+  function updateButton() {
+    const container = document.getElementById("boton-container");
+    if (!container) return;
+
+    const button = document.createElement("button");
+    button.id = "vaciar-carrito";
+    button.className =
+      window.innerWidth > 768
+        ? "text-red-500 px-4 py-2 rounded hover:text-red-700"
+        : "bg-red-500 px-4 py-2 rounded hover:bg-red-700";
+    button.innerHTML = window.innerWidth > 768 ? "Vaciar" : "🗑️";
+
+    container.innerHTML = "";
+    container.appendChild(button);
+
+    // Agrega el evento al nuevo botón
+    button.addEventListener("click", function () {
+      vaciarCarrito();
+    });
+  }
+
+  cargarCarrito();
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    if (target.matches("[data-agregar-carrito]")) {
+      const productoJSON = target.getAttribute("data-producto");
+      if (productoJSON) {
+        const producto = JSON.parse(productoJSON);
+        agregarAlCarrito(producto);
+      }
+    }
+  });
+
+  const carritoHeader = document.getElementById("carrito-header");
+  const carritoModal = document.getElementById("carrito-modal");
+  const cerrarCarrito = document.getElementById("cerrar-carrito");
+
+  carritoHeader?.addEventListener("click", function () {
+    carritoModal?.classList.remove("hidden");
+  });
+
+  cerrarCarrito?.addEventListener("click", function () {
+    carritoModal?.classList.add("hidden");
+  });
+
+  // Llama a la función updateButton en la carga de la página y cuando se redimensiona la ventana
+  window.addEventListener("resize", updateButton);
+  window.addEventListener("load", updateButton);
+
+  actualizarCarritoUI();
+</script>
